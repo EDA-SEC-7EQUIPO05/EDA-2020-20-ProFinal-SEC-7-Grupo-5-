@@ -43,10 +43,52 @@ operación seleccionada.
 #  Variables
 # ___________________________________________________
 
+smallfile = 'taxi-trips-wrvz-psew-subset-small.csv'
 
 # ___________________________________________________
 #  Menu principal
 # ___________________________________________________
+
+def printMenu():
+    print("\n")
+    print("*******************************************")
+    print("Bienvenido")
+    print("1- Inicializar Analizador")
+    print("2- Cargar información de Taxis de Chicago")
+    print("3- Parte A")
+    print("4- Parte B")
+    print("5- Parte C")
+    print("0- Salir")
+    print("*******************************************")
+
+def optionTwo1():
+    controller.loadData(cont, smallfile)
+
+while True:
+    printMenu()
+    inputs = input('Seleccione una opción para continuar\n>')
+
+    if int(inputs[0]) == 1:
+        print("\nInicializando....")
+        # cont es el controlador que se usará de acá en adelante
+        cont = controller.init()
+    
+    elif int(inputs[0]) == 2:
+        executiontime = timeit.timeit(optionTwo1, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
+    
+    elif int(inputs[0]) == 3:
+        print()
+
+    elif int(inputs[0]) == 4:
+        print()
+
+    elif int(inputs[0]) == 5:
+        print()
+
+    else:
+        sys.exit(0)
+sys.exit(0)
 
 """
 Menu principal
