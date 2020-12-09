@@ -29,6 +29,7 @@ import sys
 import config
 from App import controller
 from DISClib.ADT import stack
+from DISClib.DataStructures import listiterator as it
 import timeit
 assert config
 
@@ -64,6 +65,15 @@ def printMenu():
 def optionTwo1():
     controller.loadData(cont, smallfile)
 
+def optionThree():
+    num = int(input("¿Cuántas compañías se revisarán? \n"))
+    info = controller.companiesByTaxis(cont, num)
+    infoIterator = it.newIterator(info)
+    print('Compañia:\tNúmero de taxis afiliado:\n')
+    while it.hasNext(infoIterator):
+        elem = it.next(infoIterator)
+        print(elem['company'], '\t', elem['taxis'])
+
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n>')
@@ -78,7 +88,8 @@ while True:
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
     
     elif int(inputs[0]) == 3:
-        print()
+        executiontime = timeit.timeit(optionThree, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
 
     elif int(inputs[0]) == 4:
         print()

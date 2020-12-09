@@ -251,7 +251,7 @@ def greater(iheap, parent, element):
     que index de element
     """
     try:
-        return parent['index'] > element['index']
+        return parent['index'] < element['index']
     except Exception as exp:
         error.reraise(exp, 'indexheap:greater')
 

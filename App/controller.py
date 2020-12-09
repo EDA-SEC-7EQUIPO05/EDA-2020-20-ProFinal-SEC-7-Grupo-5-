@@ -59,9 +59,12 @@ def loadData(analyzer, taxifile):
     taxifile = cf.data_dir + taxifile
     input_file = csv.DictReader(open(taxifile, encoding="utf-8"), delimiter=",")
     for service in input_file:
-        model.addService(service, analyzer)
+        model.addService(analyzer, service)
     return analyzer
 
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+def companiesByTaxis(analyzer, num):
+    return model.companiesByTaxis(analyzer, num)
