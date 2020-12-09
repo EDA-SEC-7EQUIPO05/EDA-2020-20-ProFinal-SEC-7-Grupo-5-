@@ -42,7 +42,14 @@ de creacion y consulta sobre las estructuras de datos.
 #                       API
 # -----------------------------------------------------
 
+def newAnalyzer():
+    analyzer = {'TaxiNum': 0, 'ServiceNum':0, 'TaxiPQ': None, 'ServicePQ': None}
+    return analyzer
+
 # Funciones para agregar informacion al grafo
+
+def addService(analyzer, service):
+    return analyzer
 
 # ==============================
 # Funciones de consulta
