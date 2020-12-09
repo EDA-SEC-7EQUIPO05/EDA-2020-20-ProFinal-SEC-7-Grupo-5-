@@ -62,6 +62,10 @@ def loadData(analyzer, taxifile):
         model.addService(service, analyzer)
     return analyzer
 
+
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+def companiesByTaxis(analyzer, num):
+    return model.companiesByTaxis(analyzer, num)

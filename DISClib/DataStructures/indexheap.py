@@ -33,7 +33,6 @@ orientada a menor
 def newIndexHeap(cmpfunction):
     """
     Crea un cola de prioridad indexada orientada a menor
-
     Args:
         cmpfunction: La funcion de comparacion
         size: El numero de elementos
@@ -61,7 +60,6 @@ def newIndexHeap(cmpfunction):
 def insert(iheap, key, index):
     """
     Inserta la llave key con prioridad index
-
     Args:
         iheap: El heap indexado
     Returns:
@@ -84,7 +82,6 @@ def insert(iheap, key, index):
 def isEmpty(iheap):
     """
     Informa si una cola de prioridad indexada es vacia
-
     Args:
         iheap: El heap indexado a revisar
     Returns:
@@ -101,7 +98,6 @@ def isEmpty(iheap):
 def size(iheap):
     """
     Retorna el número de elementos en el heap
-
     Args:
         iheap: El heap a revisar
     Returns:
@@ -118,7 +114,6 @@ def size(iheap):
 def contains(iheap, key):
     """
     Indica si la llave key se encuentra en el heap
-
     Args:
         iheap: El heap a revisar
     Returns:
@@ -135,7 +130,6 @@ def contains(iheap, key):
 def min(iheap):
     """
     Retorna el primer elemento del heap, es decir el menor elemento
-
     Args:
         iheap: El heap a revisar
     Returns:
@@ -156,7 +150,6 @@ def delMin(iheap):
     """
     Retorna el menor elemento del heap y lo elimina.
     Se reemplaza con el último elemento y se hace sink.
-
     Args:
         iheap: El heap a revisar
     Returns:
@@ -180,7 +173,6 @@ def delMin(iheap):
 def decreaseKey(iheap, key, newindex):
     """
     Decrementa el indice de un llave
-
     Args:
         iheap: El heap a revisar
         key: la llave a decrementar
@@ -204,7 +196,6 @@ def decreaseKey(iheap, key, newindex):
 def increaseKey(iheap, key, newindex):
     """
     Incrementa el indice de un llave
-
     Args:
         iheap: El heap a revisar
         key: la llave a incrementar
@@ -251,7 +242,7 @@ def greater(iheap, parent, element):
     que index de element
     """
     try:
-        return parent['index'] > element['index']
+        return parent['index'] < element['index']
     except Exception as exp:
         error.reraise(exp, 'indexheap:greater')
 
@@ -260,11 +251,9 @@ def swim(iheap, pos):
     """
     Deja en el lugar indicado un elemento adicionado
     en la última posición
-
     Args:
         heap: El arreglo con la informacion
         pos: posicion en el arreglo a revisar
-
     Returns:
         El arreglo en forma de heap
     Raises:
@@ -286,11 +275,9 @@ def swim(iheap, pos):
 def sink(iheap, pos):
     """
     Deja en la posición correcta un elemento ubicado en la raíz del heap
-
     Args:
         heap: El arreglo con la informacion
         pos: posicion en el arreglo a revisar
-
     Returns:
         El arreglo en forma de heap
     Raises:

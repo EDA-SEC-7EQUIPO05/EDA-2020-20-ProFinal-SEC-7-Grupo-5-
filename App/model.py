@@ -43,13 +43,21 @@ de creacion y consulta sobre las estructuras de datos.
 # -----------------------------------------------------
 
 def newAnalyzer():
-    analyzer = {'TaxiNum': 0, 'ServiceNum':0, 'TaxiPQ': None, 'ServicePQ': None}
+    analyzer = {'TaxiNum': None, 'ServiceNum':0, 'TaxiPQ': None, 'ServicePQ': None}
+
+    analyzer["TaxiNum"] = m.newMap(numelements=6000,
+                                              maptype="PROBING",
+                                              comparefunction=compareTaxiId)
+
     return analyzer
 
 # Funciones para agregar informacion al grafo
 
 def addService(analyzer, service):
     return analyzer
+
+def req1 (analyzer):
+    return analyzer["TaxiNum"]
 
 # ==============================
 # Funciones de consulta
@@ -62,3 +70,11 @@ def addService(analyzer, service):
 # ==============================
 # Funciones de Comparacion
 # ==============================
+
+def compareTaxiId(id_1, id_2):
+    if id_1 == id_2:
+        return 0
+    elif id_1 > id_2:
+        return 1
+    else:
+        return -1
