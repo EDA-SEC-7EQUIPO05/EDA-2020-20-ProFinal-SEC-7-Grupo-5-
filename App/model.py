@@ -98,13 +98,23 @@ def companiesByTaxis(analyzer, num):
 def totalTaxis(analyzer):
     cont=0
     lista=[]
+    lista2=[]
     valores=m.valueSet(analyzer["TaxiNum"])
     iterator_valores= it.newIterator(valores)
     while it.hasNext(iterator_valores):
         elemento=it.next(iterator_valores)
         lista.append(elemento)
 
-    return lista
+    for i in lista:
+        valor=i
+        for k in valor:
+            numeros=valor[k]
+            lista2.append(numeros)
+
+    for z in lista2:
+        cont+=z
+
+    return cont
 
 def totalCompanies(analyzer):
     cont=0

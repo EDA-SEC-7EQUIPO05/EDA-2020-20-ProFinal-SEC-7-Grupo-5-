@@ -78,10 +78,6 @@ def optionThree():
         elem = it.next(infoIterator)
         print(elem['company'], '\t', elem['taxis'])
 
-def optionFour():
-    info=controller.totalTaxis(cont)
-    print(info)
-
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n>')
@@ -100,7 +96,7 @@ while True:
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
 
     elif int(inputs[0]) == 4:
-        executiontime = timeit.timeit(optionFour, number=1)
+        
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
 
     elif int(inputs[0]) == 5:
