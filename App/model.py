@@ -27,7 +27,9 @@ import config
 from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
+from DISClib.ADT import indexminpq as ipq
 from DISClib.DataStructures import listiterator as it
+from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
@@ -43,25 +45,80 @@ de creacion y consulta sobre las estructuras de datos.
 # -----------------------------------------------------
 
 def newAnalyzer():
-    analyzer = {'TaxiNum': None, 'ServiceNum':0, 'TaxiPQ': None, 'ServicePQ': None}
-
-    analyzer["TaxiNum"] = m.newMap(numelements=6000,
+    analyzer = {'TaxiNum': None, 'TaxiPQ': None, 'ServicePQ': None}
+    analyzer["TaxiNum"] = m.newMap(numelements=2000,
                                               maptype="PROBING",
-                                              comparefunction=compareTaxiId)
-
+                                              comparefunction=compareCompanies)
+    analyzer['TaxiPQ'] = {'PQ': ipq.newIndexMinPQ(compareCompanies), 'Map': m.newMap(numelements=500, comparefunction=compareCompanies)}
     return analyzer
 
 # Funciones para agregar informacion al grafo
 
 def addService(analyzer, service):
+    company = service['company']
+    taxi_id = service['taxi_id']
+    if company == '':
+        company = 'Independent Owner'
+    if not ipq.contains(analyzer['TaxiPQ']['PQ'], company):
+        taxilist = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compareCompanies2)
+        lt.addLast(taxilist, taxi_id)
+        m.put(analyzer['TaxiPQ']['Map'], company, taxilist)
+        ipq.insert(analyzer['TaxiPQ']['PQ'], company, 1)
+    else:
+        taxilist = me.getValue(m.get(analyzer['TaxiPQ']['Map'], company))
+        if not lt.isPresent(taxilist, company):
+            lt.addLast(taxilist, taxi_id)
+            ipq.increaseKey(analyzer['TaxiPQ']['PQ'], company, lt.size(taxilist))
+    if not m.contains(analyzer["TaxiNum"],company):
+        m.put(analyzer["TaxiNum"],company,{"Taxi":0})
+    else:
+        valor=me.getValue(m.get(analyzer["TaxiNum"],company)) 
+        valor["Taxi"]+=1
+    
     return analyzer
-
-def req1 (analyzer):
-    return analyzer["TaxiNum"]
 
 # ==============================
 # Funciones de consulta
 # ==============================
+
+def companiesByTaxis(analyzer, num):
+    maxPQ = analyzer['TaxiPQ']['PQ']
+    PQ_map = analyzer['TaxiPQ']['Map']
+    cont = 0
+    companies = lt.newList()
+    while cont < num:
+        comp = ipq.min(maxPQ)
+        ipq.delMin(maxPQ)
+        index = lt.size(me.getValue(m.get(PQ_map, comp)))
+        entry = {'company': comp, 'taxis': index}
+        lt.addLast(companies, entry)
+        cont += 1
+    return companies
+
+def totalTaxis(analyzer):
+    cont=0
+    lista=[]
+    valores=m.valueSet(analyzer["TaxiNum"])
+    iterator_valores= it.newIterator(valores)
+    while it.hasNext(iterator_valores):
+        elemento=it.next(iterator_valores)
+        lista.append(elemento)
+
+    return lista
+
+def totalCompanies(analyzer):
+    cont=0
+    lista=[]
+    llaves=m.keySet(analyzer["TaxiNum"])
+    iterator_llaves= it.newIterator(llaves)
+    while it.hasNext(iterator_llaves):
+        elemento=it.next(iterator_llaves)
+        lista.append(elemento)
+
+    for i in lista:
+        cont+=1
+
+    return cont
 
 # ==============================
 # Funciones Helper
@@ -71,10 +128,26 @@ def req1 (analyzer):
 # Funciones de Comparacion
 # ==============================
 
-def compareTaxiId(id_1, id_2):
-    if id_1 == id_2:
+def compareCompanies(comp, keyvaluecomp):
+    """
+    Compara dos compañias (mapa)
+    """
+    compkey = keyvaluecomp['key']
+    if (comp == compkey):
         return 0
-    elif id_1 > id_2:
+    elif (comp > compkey):
+        return 1
+    else:
+        return -1
+
+
+def compareCompanies2(comp1, comp2):
+    """
+    Compara dos compañias (lista)
+    """
+    if (comp1 == comp2):
+        return 0
+    elif (comp1 > comp2):
         return 1
     else:
         return -1
