@@ -73,7 +73,7 @@ def addService(analyzer, service):
 # ==============================
 
 def companiesByTaxis(analyzer, num):
-    maxPQ = analyzer['TaxiPQ']['PQ']
+    maxPQ = analyzer['TaxiPQ']['PQ'].copy()
     PQ_map = analyzer['TaxiPQ']['Map']
     cont = 0
     companies = lt.newList()
