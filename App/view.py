@@ -29,6 +29,7 @@ import sys
 import config
 from App import controller
 from DISClib.ADT import stack
+from DISClib.DataStructures import listiterator as it
 import timeit
 assert config
 
@@ -43,10 +44,92 @@ operación seleccionada.
 #  Variables
 # ___________________________________________________
 
+smallfile = 'taxi-trips-wrvz-psew-subset-small.csv'
+mediumfile = 'taxi-trips-wrvz-psew-subset-medium.csv'
 
 # ___________________________________________________
 #  Menu principal
 # ___________________________________________________
+
+def printMenu():
+    print("\n")
+    print("*******************************************")
+    print("Bienvenido")
+    print("1- Inicializar Analizador")
+    print("2- Cargar información de Taxis de Chicago")
+    print("3- Parte A")
+    print("4- Parte B")
+    print("5- Parte C")
+    print("0- Salir")
+    print("*******************************************")
+
+def optionTwo1():
+    controller.loadData(cont, smallfile)
+
+def optionThree():
+    parte1=controller.totalTaxis(cont)
+    print("Se tienen: "+str(parte1)+" "+"Taxis en total")
+    parte2=controller.totalCompanies(cont)
+    print("Se tienen: "+str(parte2)+" "+"empresas en total")
+    num = int(input("¿Cuántas compañías se revisarán? \n"))
+    info = controller.companiesByTaxis(cont, num)
+    infoIterator = it.newIterator(info)
+    print('Compañia:\tNúmero de taxis afiliado:\n')
+    while it.hasNext(infoIterator):
+        elem = it.next(infoIterator)
+        print(elem['company'], '\t', elem['taxis'])
+
+def optionFour():
+    cond = None
+    while cond != '1' and cond != '2':
+        cond = input('¿Desea conocer los taxis con más puntos en una fecha o en un rango de fechas?\n1. Una fecha.\n2. Rango de fechas.\n')
+    if cond == '1':
+        cond = True
+        fecha = input('¿Cuál fecha desea consultar?\n')
+        num = int(input('¿Cuántos taxis desea conocer?\n'))
+        info = controller.parteB(cont, num, cond, fecha=fecha)
+    else:
+        cond = False
+        fechamin = input('¿Cuál es la fecha menor del rango?\n')
+        fechamax = input('¿Cuál es la fecha mayor del rango?\n')
+        num = int(input('¿Cuántos taxis desea conocer?\n'))
+        info = controller.parteB(cont, num, cond, mindate=fechamin, maxdate=fechamax)
+    if info is not None:
+        infoIterator = it.newIterator(info)
+        print('Taxi Id\t\t\t\t\t\t\t\t\t\t\t\t\tPuntaje')
+        while it.hasNext(infoIterator):
+            elem = it.next(infoIterator)
+            print(elem[0], '|', elem[1])
+    else:
+        print('No hay información disponible')
+
+while True:
+    printMenu()
+    inputs = input('Seleccione una opción para continuar\n>')
+
+    if int(inputs[0]) == 1:
+        print("\nInicializando....")
+        # cont es el controlador que se usará de acá en adelante
+        cont = controller.init()
+    
+    elif int(inputs[0]) == 2:
+        executiontime = timeit.timeit(optionTwo1, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
+    
+    elif int(inputs[0]) == 3:
+        executiontime = timeit.timeit(optionThree, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
+
+    elif int(inputs[0]) == 4:
+        executiontime = timeit.timeit(optionFour, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
+
+    elif int(inputs[0]) == 5:
+        print()
+
+    else:
+        sys.exit(0)
+sys.exit(0)
 
 """
 Menu principal
