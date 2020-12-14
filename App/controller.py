@@ -26,6 +26,7 @@
 
 import config as cf
 from App import model
+import datetime
 import csv
 
 """
@@ -68,3 +69,22 @@ def loadData(analyzer, taxifile):
 
 def companiesByTaxis(analyzer, num):
     return model.companiesByTaxis(analyzer, num)
+
+
+def parteB(analyzer, num, cond, fecha=None, mindate=None, maxdate=None):
+    if fecha is not None:
+        fecha = datetime.datetime.strptime(fecha, '%Y-%m-%d')
+        formatdate = fecha.date()
+    else:
+        formatdate = None
+    if mindate is not None:
+        mindate = datetime.datetime.strptime(mindate, '%Y-%m-%d')
+        formatmindate = mindate.date()
+    else:
+        formatmindate = None
+    if maxdate is not None:
+        maxdate = datetime.datetime.strptime(maxdate, '%Y-%m-%d')
+        formatmaxdate = maxdate.date()
+    else:
+        formatmaxdate = None
+    return model.parteB(analyzer, num, formatdate, formatmindate, formatmaxdate, cond)

@@ -45,6 +45,7 @@ operación seleccionada.
 # ___________________________________________________
 
 smallfile = 'taxi-trips-wrvz-psew-subset-small.csv'
+mediumfile = 'taxi-trips-wrvz-psew-subset-medium.csv'
 
 # ___________________________________________________
 #  Menu principal
@@ -63,7 +64,7 @@ def printMenu():
     print("*******************************************")
 
 def optionTwo1():
-    controller.loadData(cont, smallfile)
+    controller.loadData(cont, mediumfile)
 
 def optionThree():
     num = int(input("¿Cuántas compañías se revisarán? \n"))
@@ -73,6 +74,31 @@ def optionThree():
     while it.hasNext(infoIterator):
         elem = it.next(infoIterator)
         print(elem['company'], '\t', elem['taxis'])
+
+def optionFour():
+    cond = None
+    while cond != '1' and cond != '2':
+        cond = input('¿Desea conocer los taxis con más puntos en una fecha o en un rango de fechas?\n1. Una fecha.\n2. Rango de fechas.\n')
+    if cond == '1':
+        cond = True
+        fecha = input('¿Cuál fecha desea consultar?\n')
+        num = int(input('¿Cuántos taxis desea conocer?\n'))
+        info = controller.parteB(cont, num, cond, fecha=fecha)
+    else:
+        cond = False
+        fechamin = input('¿Cuál es la fecha menor del rango?\n')
+        fechamax = input('¿Cuál es la fecha mayor del rango?\n')
+        num = int(input('¿Cuántos taxis desea conocer?\n'))
+        info = controller.parteB(cont, num, cond, mindate=fechamin, maxdate=fechamax)
+    if info is not None:
+        infoIterator = it.newIterator(info)
+        print('Taxi Id\t\t\t\t\t\t\t\t\t\t\t\t\tPuntaje')
+        while it.hasNext(infoIterator):
+            elem = it.next(infoIterator)
+            print(elem[0], '|', elem[1])
+    else:
+        print('No hay información disponible')
+
 
 while True:
     printMenu()
@@ -84,6 +110,7 @@ while True:
         cont = controller.init()
     
     elif int(inputs[0]) == 2:
+        print("Cargando información....")
         executiontime = timeit.timeit(optionTwo1, number=1)
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
     
@@ -92,7 +119,8 @@ while True:
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
 
     elif int(inputs[0]) == 4:
-        print()
+        executiontime = timeit.timeit(optionFour, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
 
     elif int(inputs[0]) == 5:
         print()
