@@ -103,6 +103,23 @@ def optionFour():
     else:
         print('No hay información disponible')
 
+def optionFive():
+    answer = controller.parteC(cont, communityAreaOrigin, communityAreaDestination, rangeTime)
+    duration = str(answer["duration"])
+    route = answer["route"]
+    time = answer["bestTime"]
+    print("A) La mejor hora para salir desde el community area " + communityAreaOrigin + ", es: " + time)
+    print("B) La ruta es: ")
+    if route != None:
+        iterator = it.newIterator(route)
+        while it.hasNext(iterator):
+            vertex = it.next(iterator)
+            vertex = vertex["vertexA"] + " --> " + vertex["vertexB"]
+            print(" " + station)
+    else:
+        print("No existe un recorrido")
+    print("C) El tiempo del recorrido es: " + duration + " segundos")
+
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n>')
@@ -114,6 +131,9 @@ while True:
     
     elif int(inputs[0]) == 2:
         executiontime = timeit.timeit(optionTwo1, number=1)
+        graph = cont['AreaGraph']
+        print("El número de vértices del grafo de community areas es de: " + str(controller.numVertex(graph)))
+        print("El número de arcos del grafo de community areas es de: " + str(controller.numEdges(graph)))
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
     
     elif int(inputs[0]) == 3:
@@ -125,8 +145,12 @@ while True:
         print("Tiempo de ejecución: " + str(executiontime) + " segundos")
 
     elif int(inputs[0]) == 5:
-        print()
-
+        communityAreaOrigin = str(input("Ingrese una community area de partida (número entero): "))
+        communityAreaDestination = str(input("Ingrese una community area de llegada (número entero): "))
+        rangeTime = input("Ingrese un rango de horas de la forma HH:MM-HH:MM, de otra manera saldrá error: ")
+        executiontime = timeit.timeit(optionFive, number=1)
+        print("Tiempo de ejecución: " + str(executiontime) + " segundos")
+        
     else:
         sys.exit(0)
 sys.exit(0)

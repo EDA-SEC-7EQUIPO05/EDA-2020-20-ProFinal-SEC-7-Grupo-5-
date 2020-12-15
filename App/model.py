@@ -36,7 +36,9 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
+from math import inf
 assert config
+
 
 """
 En este archivo definimos los TADs que vamos a usar y las operaciones
@@ -48,12 +50,16 @@ de creacion y consulta sobre las estructuras de datos.
 # -----------------------------------------------------
 
 def newAnalyzer():
-    analyzer = {'TaxiNum': None, 'TaxiPQ': None, 'ServicePQ': None, 'PointsTree': None}
+    analyzer = {'TaxiNum': None, 'TaxiPQ': None, 'ServicePQ': None, 'PointsTree': None, 'AreaGraph': None}
     analyzer["TaxiNum"] = m.newMap(numelements=2000,
                                               maptype="PROBING",
                                               comparefunction=compareCompanies)
     analyzer['TaxiPQ'] = {'PQ': ipq.newIndexMinPQ(compareCompanies), 'Map': m.newMap(numelements=500, comparefunction=compareCompanies)}
     analyzer['PointsTree'] = om.newMap(omaptype='BST',comparefunction=compareDates)
+    analyzer['AreaGraph'] = gr.newGraph(datastructure='ADJ_LIST',
+                                              directed=True,
+                                              size=1000,
+                                              comparefunction = compareAreas)
     return analyzer
 
 # Funciones para agregar informacion al grafo
@@ -89,7 +95,7 @@ def addService(analyzer, service):
         valor["Taxi"]+=1
     if money > 0 and distance > 0:
         uptadePointsTree(analyzer, date, taxi_id, money, distance)
-    
+    addServiceToGraph(analyzer, service)
     return analyzer
 
 def uptadePointsTree(analyzer, date, taxi_id, money, distance):
@@ -133,9 +139,45 @@ def newDateEntry(date):
     Entry['TaxiMap'] = m.newMap(numelements=75000, comparefunction=compareTaxiId)
     return Entry
 
+def addServiceToGraph(analyzer, service):
+    graph = analyzer['AreaGraph']
+    originArea = service['pickup_community_area']
+    destinationArea = service['dropoff_community_area']
+    startTime = convertTime(str(service['trip_start_timestamp']))
+    endTime = convertTime(str(service['trip_end_timestamp']))
+    try:
+        duration = float(service["trip_seconds"])
+    except:
+        duration = None
+    if (originArea != destinationArea) and (startTime != None) and (endTime != None) and (duration != None) and (originArea != "") and (destinationArea != ""):
+        originArea = str(int(float(originArea)))
+        destinationArea = str(int(float(destinationArea)))
+        originVertex = originArea + "-" + startTime
+        destinationvertex = destinationArea + "-" + endTime
+        if not gr.containsVertex(graph, originVertex):
+            gr.insertVertex(graph, originVertex)
+        if not gr.containsVertex(graph, destinationvertex):
+            gr.insertVertex(graph, destinationvertex)
+        addConnection(graph,  originVertex, destinationvertex, duration)
+
+def addConnection(graph,  originVertex, destinationvertex, duration):
+    edge = gr.getEdge(graph, originVertex, destinationvertex)
+    if edge is None:
+        weight = [duration, 1]
+        gr.addEdge(graph, originVertex, destinationvertex, weight)
+    else:
+        edge['weight'][0] = (edge['weight'][0]*edge['weight'][1] + duration)/(edge['weight'][1] + 1)
+        edge['weight'][1] += 1
+    
 # ==============================
 # Funciones de consulta
 # ==============================
+
+def numVertex(graph):
+    return gr.numVertices(graph)
+
+def numEdges(graph):
+    return gr.numEdges(graph)
 
 def companiesByTaxis(analyzer, num):
     maxPQ = analyzer['TaxiPQ']['PQ'].copy()
@@ -193,6 +235,35 @@ def parteB(analyzer, num, date, mindate, maxdate, cond):
     else:
         taxis = getMaxPointsinDateRange(tree, mindate, maxdate, num)
         return taxis
+
+def parteC(analyzer, communityAreaOrigin, communityAreaDestination, rangeTime):
+    answer = {"bestTime": "No identificada", "route": None, "duration": inf}
+    graph = analyzer['AreaGraph']
+    rangeTime2 = rangeTime.split("-")
+    ls = aboutQuarterHour(rangeTime2[0])
+    totalq = allQuartersInRange(rangeTime)
+    totalq.append(ls)
+    endVertexes = []
+    vertexes = gr.vertices(graph)
+    iterator = it.newIterator(vertexes)
+    while it.hasNext(iterator):
+        vertex2 = it.next(iterator)
+        vertex2 = vertex2.split("-")
+        if communityAreaDestination == vertex2[0]:
+            endVertexes.append("-".join(vertex2))
+    for i in totalq:
+        initialVertex = communityAreaOrigin + "-" + i
+        if gr.containsVertex(graph, initialVertex):
+            search = djk.Dijkstra(graph, initialVertex)
+            for k in endVertexes:
+                if djk.hasPathTo(search, k):
+                    duration = str(djk.distTo(search, k))
+                    route = djk.pathTo(search, k)
+                    if float(duration) < float(answer["duration"]):
+                        answer["duration"] = duration
+                        answer["route"] = route
+                        answer["bestTime"] = i
+    return answer
 
 # ==============================
 # Funciones Helper
@@ -261,6 +332,105 @@ def getMaxPointsinDateRange(tree, mindate, maxdate, num):
         cont += 1
     return taxiList
 
+def convertTime(time):
+    a = False
+    time = list(time)
+    k = 0
+    for i in time:
+        k += 1
+        if i == "T":
+            a = True
+            break
+    if a:
+        time = time[k:-1]
+    else:
+        return None
+    time = "".join(time)
+    time = time.split(":")
+    del time[-1]
+    time = ":".join(time)
+    return time
+
+def aboutQuarterHour(time):
+    time = time.split(":")
+    hours = int(time[0])
+    minutes = int(time[1])
+    a = minutes//15
+    b = a + 1
+    lq = a*15
+    rq = b*15
+    ld = abs(minutes - lq)
+    rd = abs(minutes - rq)
+    if ld > rd:
+        minutes = rq
+    else:
+        minutes = lq
+    if minutes == 60:
+        hours += 1
+        minutes = 0
+        if hours == 24:
+            hours = 0
+            time[0] = str(hours) + "0"
+            time[1] = str(minutes) + "0"
+        elif hours < 10:
+            time[0] = "0" + str(hours)
+            time[1] = str(minutes) + "0"
+        else:
+            time[0] = str(hours)
+            time[1] = str(minutes) + "0"
+    else:
+        if hours < 10:
+            if minutes < 10:
+                time[0] = "0" + str(hours)
+                time[1] = "0" + str(minutes)
+            else:
+                time[0] = "0" + str(hours)
+                time[1] = str(minutes)
+        else:
+            if minutes < 10:
+                time[0] = str(hours)
+                time[1] = "0" + str(minutes)
+            else:
+                time[0] = str(hours)
+                time[1] = str(minutes)
+    return ":".join(time)
+
+def allQuartersInRange(rangeTime):
+    totalq = []
+    rangeTime = rangeTime.split("-")
+    leftA = aboutQuarterHour(rangeTime[0])
+    rightA = aboutQuarterHour(rangeTime[1])
+    left_limit = leftA.split(":")
+    right_limit = rightA.split(":")
+    hoursl = int(left_limit[0])
+    hoursr = int(right_limit[0])
+    minutesl = int(left_limit[1])
+    minutesr = int(right_limit[1])
+    minutesBetween = abs((hoursr*60 + minutesr) - (hoursl*60 + minutesl))
+    num_quarters = minutesBetween//15
+    hours = hoursl
+    minutes = minutesl
+    for i in range(1, num_quarters + 1):
+        quarter = None
+        minutes = minutes + 15
+        if minutes == 60:
+            hours += 1
+            minutes = 0
+        if hours < 10:
+            if minutes < 10:
+                quarter = "0" + str(hours) + ":" + "0" + str(minutes)
+            else:
+                quarter = "0" + str(hours) + ":" + str(minutes)
+        else:
+            if minutes < 10:
+                quarter = str(hours) + ":" + "0" + str(minutes)
+            else:
+                quarter = str(hours) + ":" + str(minutes)
+        totalq.append(quarter)
+    return totalq
+
+        
+
 # ==============================
 # Funciones de Comparacion
 # ==============================
@@ -311,6 +481,18 @@ def compareDates(date_1, date_2):
     if date_1 == date_2:
         return 0
     elif date_1 > date_2:
+        return 1
+    else:
+        return -1
+
+def compareAreas(area, keyvalueArea):
+    """
+    Compara dos compañias (mapa)
+    """
+    compkey = keyvalueArea['key']
+    if (area == compkey):
+        return 0
+    elif (area > compkey):
         return 1
     else:
         return -1

@@ -93,3 +93,13 @@ def parteB(analyzer, num, cond, fecha=None, mindate=None, maxdate=None):
     else:
         formatmaxdate = None
     return model.parteB(analyzer, num, formatdate, formatmindate, formatmaxdate, cond)
+
+def numVertex(graph):
+    return model.numVertex(graph)
+
+def numEdges(graph):
+    return model.numEdges(graph)
+
+def parteC(analyzer, communityAreaOrigin, communityAreaDestination, rangeTime):
+    return model.parteC(analyzer, communityAreaOrigin, communityAreaDestination, rangeTime)
+
