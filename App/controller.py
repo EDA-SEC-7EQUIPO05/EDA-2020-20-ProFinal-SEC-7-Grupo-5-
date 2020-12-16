@@ -70,6 +70,9 @@ def loadData(analyzer, taxifile):
 def companiesByTaxis(analyzer, num):
     return model.companiesByTaxis(analyzer, num)
 
+def companiesByServices(analyzer, num):
+    return model.companiesByServices(analyzer, num)
+
 def totalTaxis(analyzer):
     return model.totalTaxis(analyzer)
 

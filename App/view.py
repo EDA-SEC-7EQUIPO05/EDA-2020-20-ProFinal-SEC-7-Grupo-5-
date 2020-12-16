@@ -71,13 +71,21 @@ def optionThree():
     print("Se tienen: "+str(parte1)+" "+"Taxis en total")
     parte2=controller.totalCompanies(cont)
     print("Se tienen: "+str(parte2)+" "+"empresas en total")
-    num = int(input("¿Cuántas compañías se revisarán? \n"))
+    num = int(input("¿Cuántas compañías se revisarán (top taxis)? \n"))
+    num2 = int(input("¿Cuántas compañías se revisarán (top servicios)? \n"))
     info = controller.companiesByTaxis(cont, num)
     infoIterator = it.newIterator(info)
     print('Compañia:\tNúmero de taxis afiliado:\n')
     while it.hasNext(infoIterator):
         elem = it.next(infoIterator)
         print(elem['company'], '\t', elem['taxis'])
+    
+    info2 = controller.companiesByServices(cont, num2)
+    infoIterator2 = it.newIterator(info2)
+    print('Compañia:\tNúmero de servicios afiliado:\n')
+    while it.hasNext(infoIterator2):
+        elem = it.next(infoIterator2)
+        print(elem['company'], '\t', elem['servicios'])
 
 def optionFour():
     cond = None

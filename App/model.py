@@ -50,11 +50,12 @@ de creacion y consulta sobre las estructuras de datos.
 # -----------------------------------------------------
 
 def newAnalyzer():
-    analyzer = {'TaxiNum': None, 'TaxiPQ': None, 'ServicePQ': None, 'PointsTree': None, 'AreaGraph': None}
+    analyzer = {'TaxiNum': None, 'TaxiPQ': None, 'ServicePQ': None, 'ServicePQ': None, 'PointsTree': None, 'AreaGraph': None}
     analyzer["TaxiNum"] = m.newMap(numelements=2000,
                                               maptype="PROBING",
                                               comparefunction=compareCompanies)
     analyzer['TaxiPQ'] = {'PQ': ipq.newIndexMinPQ(compareCompanies), 'Map': m.newMap(numelements=500, comparefunction=compareCompanies)}
+    analyzer['ServicePQ'] = {'PQ': ipq.newIndexMinPQ(compareCompanies), 'Map': m.newMap(numelements=500, comparefunction=compareCompanies)}
     analyzer['PointsTree'] = om.newMap(omaptype='BST',comparefunction=compareDates)
     analyzer['AreaGraph'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=True,
@@ -67,6 +68,7 @@ def newAnalyzer():
 def addService(analyzer, service):
     company = service['company']
     taxi_id = service['taxi_id']
+    service_id = service['trip_id']
     if service['trip_total'] is not '':
         money = float(service['trip_total'])
     else:
@@ -88,6 +90,19 @@ def addService(analyzer, service):
         if not lt.isPresent(taxilist, company):
             lt.addLast(taxilist, taxi_id)
             ipq.increaseKey(analyzer['TaxiPQ']['PQ'], company, lt.size(taxilist))
+    
+    if not ipq.contains(analyzer['ServicePQ']['PQ'], company):
+        servicelist = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compareCompanies2)
+        lt.addLast(servicelist, service_id)
+        m.put(analyzer['ServicePQ']['Map'], company, servicelist)
+        ipq.insert(analyzer['ServicePQ']['PQ'], company, 1)
+    else:
+        servicelist = me.getValue(m.get(analyzer['ServicePQ']['Map'], company))
+        if not lt.isPresent(servicelist, company):
+            lt.addLast(servicelist, service_id)
+            ipq.increaseKey(analyzer['ServicePQ']['PQ'], company, lt.size(servicelist))
+
+
     if not m.contains(analyzer["TaxiNum"],company):
         m.put(analyzer["TaxiNum"],company,{"Taxi":0})
     else:
@@ -188,6 +203,19 @@ def companiesByTaxis(analyzer, num):
         comp = ipq.delMin(maxPQ)
         index = lt.size(me.getValue(m.get(PQ_map, comp)))
         entry = {'company': comp, 'taxis': index}
+        lt.addLast(companies, entry)
+        cont += 1
+    return companies
+
+def companiesByServices(analyzer, num):
+    maxPQ = analyzer['TaxiPQ']['PQ'].copy()
+    PQ_map = analyzer['TaxiPQ']['Map']
+    cont = 0
+    companies = lt.newList()
+    while cont < num:
+        comp = ipq.delMin(maxPQ)
+        index = lt.size(me.getValue(m.get(PQ_map, comp)))
+        entry = {'company': comp, 'servicios': index}
         lt.addLast(companies, entry)
         cont += 1
     return companies
