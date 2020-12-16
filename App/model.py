@@ -82,13 +82,15 @@ def addService(analyzer, service):
         company = 'Independent Owner'
     if not ipq.contains(analyzer['TaxiPQ']['PQ'], company):
         taxilist = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compareCompanies2)
-        lt.addLast(taxilist, taxi_id)
+        if not lt.isPresent(taxilist, taxi_id):
+            lt.addLast(taxilist, taxi_id)
         m.put(analyzer['TaxiPQ']['Map'], company, taxilist)
         ipq.insert(analyzer['TaxiPQ']['PQ'], company, 1)
     else:
         taxilist = me.getValue(m.get(analyzer['TaxiPQ']['Map'], company))
         if not lt.isPresent(taxilist, company):
-            lt.addLast(taxilist, taxi_id)
+            if not lt.isPresent(taxilist, taxi_id):
+                lt.addLast(taxilist, taxi_id)
             ipq.increaseKey(analyzer['TaxiPQ']['PQ'], company, lt.size(taxilist))
     
     if not ipq.contains(analyzer['ServicePQ']['PQ'], company):
