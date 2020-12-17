@@ -210,8 +210,8 @@ def companiesByTaxis(analyzer, num):
     return companies
 
 def companiesByServices(analyzer, num):
-    maxPQ = analyzer['TaxiPQ']['PQ'].copy()
-    PQ_map = analyzer['TaxiPQ']['Map']
+    maxPQ = analyzer['ServicePQ']['PQ'].copy()
+    PQ_map = analyzer['ServicePQ']['Map']
     cont = 0
     companies = lt.newList()
     while cont < num:
@@ -284,7 +284,9 @@ def parteC(analyzer, communityAreaOrigin, communityAreaDestination, rangeTime):
     for i in totalq:
         initialVertex = communityAreaOrigin + "-" + i
         if gr.containsVertex(graph, initialVertex):
+            print("A")
             search = djk.Dijkstra(graph, initialVertex)
+            print("B")
             for k in endVertexes:
                 if djk.hasPathTo(search, k):
                     duration = str(djk.distTo(search, k))

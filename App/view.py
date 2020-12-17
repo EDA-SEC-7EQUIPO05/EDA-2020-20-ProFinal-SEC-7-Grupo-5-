@@ -123,7 +123,7 @@ def optionFive():
         while it.hasNext(iterator):
             vertex = it.next(iterator)
             vertex = vertex["vertexA"] + " --> " + vertex["vertexB"]
-            print(" " + station)
+            print(" " + vertex)
     else:
         print("No existe un recorrido")
     print("C) El tiempo del recorrido es: " + duration + " segundos")
